@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Scrape News Articles</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            position: relative;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .content {
+            padding: 20px;
+            box-sizing: border-box;
+            height: 100%;
+            overflow-y: auto;
+        }
+        .article {
+            border: 1px solid #ccc;
+            padding: 16px;
+            margin: 16px 0;
+        }
+        .title {
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .description {
+            margin-top: 8px;
+            font-size: 14px;
+        }
+        #loading {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .loader {
+            border: 16px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 16px solid #3498db;
+            width: 120px;
+            height: 120px;
+            animation: spin 2s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <h1>Scrape News Articles</h1>
+        <form id="scrapeForm" action="/scrape" method="post">
+            <label for="stock_name">Stock Name:</label>
+            <select id="stock_name" name="stock_name" required>
+                <option value="RELIANCE.NS">Reliance</option>
+                <option value="PAYTM.NS">Paytm</option>
+                <option value="ZOMATO.NS">Zomato</option>
+                <option value="TCS.NS">TCS</option>
+                <option value="INFY.NS">Infosys</option>
+                <option value="HDFCBANK.NS">HDFC Bank</option>
+                <option value="ICICIBANK.NS">ICICI Bank</option>
+                <option value="KOTAKBANK.NS">Kotak Mahindra Bank</option>
+                <option value="LT.NS">Larsen & Toubro</option>
+                <option value="BHARTIARTL.NS">Bharti Airtel</option>
+                <option value="ITC.NS">ITC</option>
+                <option value="SBIN.NS">State Bank of India</option>
+                <option value="HINDUNILVR.NS">Hindustan Unilever</option>
+                <option value="MARUTI.NS">Maruti Suzuki</option>
+                <option value="ASIANPAINT.NS">Asian Paints</option>
+                <option value="AXISBANK.NS">Axis Bank</option>
+                <option value="BAJFINANCE.NS">Bajaj Finance</option>
+                <option value="TATASTEEL.NS">Tata Steel</option>
+                <option value="M&M.NS">Mahindra & Mahindra</option>
+                <option value="SUNPHARMA.NS">Sun Pharma</option>
+                <option value="HCLTECH.NS">HCL Technologies</option>
+                <option value="TITAN.NS">Titan Company</option>
+                <option value="ONGC.NS">ONGC</option>
+                <option value="ULTRACEMCO.NS">UltraTech Cement</option>
+                <option value="NTPC.NS">NTPC</option>
+                <option value="POWERGRID.NS">Power Grid Corporation</option>
+                <option value="SBILIFE.NS">SBI Life Insurance</option>
+                <option value="WIPRO.NS">Wipro</option>
+                <option value="BAJAJFINSV.NS">Bajaj Finserv</option>
+                <option value="HEROMOTOCO.NS">Hero MotoCorp</option>
+                <option value="BPCL.NS">Bharat Petroleum</option>
+                <option value="HINDALCO.NS">Hindalco</option>
+                <option value="DIVISLAB.NS">Divi's Laboratories</option>
+                <option value="DRREDDY.NS">Dr. Reddy's</option>
+                <!-- Add more stock options as needed -->
+            </select>
+            <button type="submit">Scrape News</button>
+        </form>
+        <div id="results"></div>
+    </div>
+    <div id="loading" class="flex-center">
+        <div class="loader"></div>
+    </div>
+    <script>
+        document.querySelector('form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const loadingDiv = document.getElementById('loading');
+            const resultsDiv = document.getElementById('results');
+
+            // Show loading spinner and blank background
+            loadingDiv.style.display = 'flex';
+            resultsDiv.style.display = 'none';
+
+            try {
+                const response = await fetch('/scrape', {
+                    method: 'POST',
+                    body: formData
+                });
+                const results = await response.json();
+
+                // Clear previous results
+                resultsDiv.innerHTML = '';
+
+                if (results.length === 0) {
+                    resultsDiv.innerHTML = '<p>No data found</p>';
+                } else {
+                    results.forEach(article => {
+                        const articleDiv = document.createElement('div');
+                        articleDiv.classList.add('article');
+                        const title = document.createElement('div');
+                        title.classList.add('title');
+                        title.textContent = article.title;
+                        const description = document.createElement('div');
+                        description.classList.add('description');
+                        description.textContent = article.description;
+                        articleDiv.appendChild(title);
+                        articleDiv.appendChild(description);
+                        resultsDiv.appendChild(articleDiv);
+                    });
+                }
+            } catch (error) {
+                resultsDiv.innerHTML = '<p>Error fetching data</p>';
+            } finally {
+                // Hide loading spinner and show results
+                loadingDiv.style.display = 'none';
+                resultsDiv.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
